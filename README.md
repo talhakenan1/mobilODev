@@ -61,21 +61,52 @@ Uygulama, Pomodoro benzeri odak oturumlarını başlatma/duraklatma/bitirme akı
 
 ## Kurulum ve Çalıştırma
 
-Önkoşullar:
-- Node.js (LTS) ve npm/yarn.
-- Expo CLI (yerel geliştirici araçları). Yüklü değilse: `npm i -g expo-cli` veya son sürümlerde `npx expo start` yeterlidir.
+Projeyi yerel ortamınızda çalıştırmak ve geliştirmek için aşağıdaki adımları izleyin.
 
-Adımlar:
-1. Bağımlılıkları yükleyin: `npm install`
-2. Geliştirme sunucusunu başlatın: `npm run start`
-3. Platforma göre açın:
-   - Android: `npm run android`
-   - iOS: `npm run ios`
-   - Web: `npm run web`
+### Önkoşullar
+- **Node.js (LTS sürümü)**: Bilgisayarınızda yüklü olmalıdır.
+- **Paket Yöneticisi**: Node.js ile gelen `npm` veya alternatifi `yarn`.
+- **Expo Go Uygulaması**: Projeyi fiziksel telefonunuzda test etmek için App Store (iOS) veya Google Play (Android) mağazasından indirin.
+- **Emülatör (Opsiyonel)**: Bilgisayarınızda sanal cihaz çalıştırmak isterseniz Android Studio veya Xcode (sadece macOS) gereklidir.
 
-Notlar:
-- Expo Go ile cihazda QR kodu okutarak test edebilirsiniz.
-- Grafikler ve bazı Expo modülleri webde kısıtlı olabilir; mobil hedef önerilir.
+### Kurulum Adımları
+
+1. **Projeyi Klonlayın:**
+   Terminali açın ve projeyi bilgisayarınıza indirin (veya ZIP olarak indirip çıkarın):
+   ```bash
+   git clone https://github.com/talhakenan1/mobilODev.git
+   cd mobilODev
+   ```
+
+2. **Bağımlılıkları Yükleyin:**
+   Proje klasörü içerisindeyken gerekli paketleri yükleyin:
+   ```bash
+   npm install
+   ```
+
+### Uygulamayı Çalıştırma
+
+Geliştirme sunucusunu başlatmak için şu komutu kullanın:
+```bash
+npm start
+# veya alternatif olarak: npx expo start
+```
+
+Komutu çalıştırdıktan sonra terminalde bir QR kod ve işlem menüsü göreceksiniz:
+
+- **Fiziksel Cihazda (Önerilen):**
+  - Telefonunuzdaki **Expo Go** uygulamasını açın.
+  - QR kodunu taratın (Android için uygulama içinden, iOS için kamera uygulamasından).
+  - Uygulama telefonunuza yüklenecek ve çalışacaktır.
+
+- **Emülatörlerde:**
+  - **Android:** Terminalde `a` tuşuna basın (Android emülatörü açık olmalıdır).
+  - **iOS:** Terminalde `i` tuşuna basın (Xcode ve iOS Simülatörü gereklidir).
+  - **Web:** Terminalde `w` tuşuna basın (Bazı özellikler webde kısıtlı olabilir).
+
+### Sorun Giderme
+- **Bağlantı Hatası:** "Network response timed out" hatası alırsanız, telefon ve bilgisayarın **aynı Wi-Fi** ağında olduğundan emin olun.
+- **Tünel Bağlantısı:** Farklı ağlardaysanız `npx expo start --tunnel` komutunu deneyebilirsiniz.
 
 ## Kullanım
 
@@ -136,8 +167,4 @@ Kaydetme davranışı:
 - Grafiklerde daha fazla filtre (hafta/ay/yıl).
 - Dışa aktarma (CSV/JSON) ve bulut senkronizasyonu.
 - Bildirim sesinin uygulamaya eklenmesi ve ayarlanabilirliği.
-
----
-
-Bu README, mevcut kod tabanının (App.js, HomeScreen, ReportsScreen, useFocusTimer, storage ve diğer ilgili dosyalar) tam incelenmesine dayanarak hazırlanmıştır.
 
