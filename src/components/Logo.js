@@ -6,8 +6,8 @@ const Logo = ({ width = 150, height = 150 }) => {
     <Svg width={width} height={height} viewBox="0 0 512 512">
       <Defs>
         <LinearGradient id="bgGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-          <Stop offset="0%" stopColor="#4CAF50" stopOpacity="1" />
-          <Stop offset="100%" stopColor="#00897B" stopOpacity="1" />
+          <Stop offset="0%" stopColor="#E91E63" stopOpacity="1" />
+          <Stop offset="100%" stopColor="#C2185B" stopOpacity="1" />
         </LinearGradient>
       </Defs>
 

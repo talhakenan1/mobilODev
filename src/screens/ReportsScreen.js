@@ -193,7 +193,7 @@ export default function ReportsScreen() {
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                  <Text style={styles.sessionDuration}>{Math.round((item.elapsed || 0) / 60)} dk</Text>
                  <TouchableOpacity onPress={() => handleDelete(item.id)} style={styles.deleteButton}>
-                     <Ionicons name="trash-outline" size={20} color="#F44336" />
+                     <Ionicons name="trash-outline" size={20} color="#D32F2F" />
                  </TouchableOpacity>
             </View>
         </View>
@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
     statValue: {
         fontSize: 24,
         fontWeight: 'bold',
-        color: 'tomato',
+        color: '#E91E63',
     },
     statLabel: {
         fontSize: 12,
@@ -287,7 +287,7 @@ const styles = StyleSheet.create({
     sessionDuration: {
         fontSize: 16,
         fontWeight: 'bold',
-        color: '#4CAF50',
+        color: '#009688',
         marginRight: 10,
     },
     deleteButton: {
