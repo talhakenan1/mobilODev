@@ -1,7 +1,29 @@
+/**
+ * @fileoverview Odaklanma zamanlayıcısı için özel React hook.
+ * Sayaç durumu, mod yönetimi, arka plan davranışı ve titreşim özelliklerini içerir.
+ */
+
 import { useState, useEffect, useRef } from 'react';
 import { AppState, Vibration } from 'react-native';
 import { Audio } from 'expo-av';
 
+/**
+ * Odaklanma zamanlayıcısı hook'u.
+ * Zamanlayıcı durumunu, mod geçişlerini ve arka plan davranışını yönetir.
+ * 
+ * @param {number} [initialDuration=1500] - Başlangıç süresi (saniye, varsayılan: 25 dakika)
+ * @returns {Object} Zamanlayıcı durumu ve kontrol fonksiyonları
+ * @returns {number} returns.timeLeft - Kalan süre (saniye)
+ * @returns {number} returns.duration - Toplam süre (saniye)
+ * @returns {boolean} returns.isActive - Zamanlayıcı aktif mi
+ * @returns {boolean} returns.isPaused - Zamanlayıcı duraklatıldı mı
+ * @returns {number} returns.distractions - Dikkat dağınıklığı sayısı
+ * @returns {string} returns.mode - Mevcut mod ('focus' | 'break')
+ * @returns {Function} returns.startTimer - Zamanlayıcıyı başlatır
+ * @returns {Function} returns.pauseTimer - Zamanlayıcıyı duraklatır
+ * @returns {Function} returns.resetTimer - Zamanlayıcıyı sıfırlar
+ * @returns {Function} returns.changeMode - Mod değiştirir (odak/mola)
+ */
 export const useFocusTimer = (initialDuration = 25 * 60) => {
     const [duration, setDuration] = useState(initialDuration);
     const [timeLeft, setTimeLeft] = useState(initialDuration);
@@ -10,7 +32,10 @@ export const useFocusTimer = (initialDuration = 25 * 60) => {
     const [distractions, setDistractions] = useState(0);
     const [mode, setMode] = useState('focus'); // 'focus' | 'break'
     
+    /** @type {React.MutableRefObject} Uygulama durumunu takip eden referans */
     const appState = useRef(AppState.currentState);
+    
+    /** @type {React.MutableRefObject} Ses dosyası referansı (gelecek kullanım için) */
     const soundRef = useRef(null);
 
     useEffect(() => {
@@ -37,7 +62,11 @@ export const useFocusTimer = (initialDuration = 25 * 60) => {
         return () => clearInterval(interval);
     }, [isActive, isPaused, timeLeft]);
 
-    // Background handling
+    /**
+     * Arka plan durumu yönetimi.
+     * Uygulama arka plana atıldığında zamanlayıcıyı duraklatır
+     * ve dikkat dağınıklığı sayacını artırır.
+     */
     useEffect(() => {
         const subscription = AppState.addEventListener('change', nextAppState => {
             if (nextAppState.match(/inactive|background/)) {
@@ -57,6 +86,11 @@ export const useFocusTimer = (initialDuration = 25 * 60) => {
         };
     }, [isActive, isPaused]);
 
+    /**
+     * Zamanlayıcı tamamlandığında çağrılır.
+     * Titreşim ile kullanıcıyı bilgilendirir.
+     * @async
+     */
     const handleTimerComplete = async () => {
         setIsActive(false);
         setIsPaused(false);
@@ -73,6 +107,10 @@ export const useFocusTimer = (initialDuration = 25 * 60) => {
         }
     };
 
+    /**
+     * Zamanlayıcıyı başlatır veya devam ettirir.
+     * Süre sıfırsa, belirlenen süreye sıfırlar.
+     */
     const startTimer = () => {
         setIsActive(true);
         setIsPaused(false);
@@ -81,10 +119,17 @@ export const useFocusTimer = (initialDuration = 25 * 60) => {
         }
     };
 
+    /**
+     * Zamanlayıcıyı duraklatır.
+     */
     const pauseTimer = () => {
         setIsPaused(true);
     };
 
+    /**
+     * Zamanlayıcıyı sıfırlar.
+     * Tüm durumu başlangıç değerlerine döndürür.
+     */
     const resetTimer = () => {
         setIsActive(false);
         setIsPaused(false);
@@ -92,6 +137,13 @@ export const useFocusTimer = (initialDuration = 25 * 60) => {
         setDistractions(0);
     };
 
+    /**
+     * Zamanlayıcı modunu değiştirir (Odak/Mola).
+     * Mod değiştiğinde süre otomatik olarak ayarlanır:
+     * - Odak modu: 25 dakika
+     * - Mola modu: 5 dakika
+     * @param {string} newMode - Yeni mod ('focus' | 'break')
+     */
     const changeMode = (newMode) => {
         setMode(newMode);
         const newDuration = newMode === 'focus' ? 25 * 60 : 5 * 60; // Default defaults

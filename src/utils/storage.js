@@ -1,8 +1,28 @@
+/**
+ * @fileoverview AsyncStorage ile oturum ve kategori verilerini yöneten yardımcı fonksiyonlar.
+ * Bu modül, odak oturumlarının ve kullanıcı kategorilerinin kalıcı olarak saklanmasını sağlar.
+ */
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+/** @constant {string} SESSIONS_KEY - Oturumların saklandığı AsyncStorage anahtarı */
 const SESSIONS_KEY = '@focus_sessions';
+
+/** @constant {string} CATEGORIES_KEY - Kategorilerin saklandığı AsyncStorage anahtarı */
 const CATEGORIES_KEY = '@focus_categories';
 
+/**
+ * Yeni bir odak oturumunu AsyncStorage'a kaydeder.
+ * @async
+ * @param {Object} session - Kaydedilecek oturum nesnesi
+ * @param {string} [session.id] - Oturum ID'si (otomatik oluşturulur)
+ * @param {string} session.date - Oturum tarihi (ISO formatı)
+ * @param {number} session.duration - Planlanan süre (saniye)
+ * @param {number} session.elapsed - Gerçekleşen süre (saniye)
+ * @param {string} session.category - Seçili kategori
+ * @param {number} session.distractions - Dikkat dağınıklığı sayısı
+ * @returns {Promise<void>}
+ */
 export const saveSession = async (session) => {
     try {
         const existingSessions = await getSessions();
@@ -17,6 +37,11 @@ export const saveSession = async (session) => {
     }
 };
 
+/**
+ * Tüm kayıtlı oturumları AsyncStorage'dan getirir.
+ * @async
+ * @returns {Promise<Array<Object>>} Oturum nesnelerinin listesi, hata durumunda boş dizi
+ */
 export const getSessions = async () => {
     try {
         const jsonValue = await AsyncStorage.getItem(SESSIONS_KEY);
@@ -27,6 +52,12 @@ export const getSessions = async () => {
     }
 };
 
+/**
+ * Belirtilen ID'ye sahip oturumu siler.
+ * @async
+ * @param {string} sessionId - Silinecek oturumun ID'si
+ * @returns {Promise<Array<Object>>} Güncellenmiş oturum listesi
+ */
 export const deleteSession = async (sessionId) => {
     try {
         const existingSessions = await getSessions();
@@ -39,6 +70,11 @@ export const deleteSession = async (sessionId) => {
     }
 };
 
+/**
+ * Tüm oturumları AsyncStorage'dan temizler.
+ * @async
+ * @returns {Promise<void>}
+ */
 export const clearSessions = async () => {
     try {
         await AsyncStorage.removeItem(SESSIONS_KEY);
@@ -47,9 +83,16 @@ export const clearSessions = async () => {
     }
 };
 
-// Category Management
+/* ==================== KATEGORİ YÖNETİMİ ==================== */
+
+/** @constant {Array<string>} DEFAULT_CATEGORIES - Varsayılan kategori listesi */
 const DEFAULT_CATEGORIES = ["Ders Çalışma", "Kodlama", "Proje", "Kitap Okuma"];
 
+/**
+ * Kayıtlı kategorileri getirir, yoksa varsayılan kategorileri döndürür.
+ * @async
+ * @returns {Promise<Array<string>>} Kategori listesi
+ */
 export const getCategories = async () => {
     try {
         const jsonValue = await AsyncStorage.getItem(CATEGORIES_KEY);
@@ -60,6 +103,12 @@ export const getCategories = async () => {
     }
 };
 
+/**
+ * Kategori listesini AsyncStorage'a kaydeder.
+ * @async
+ * @param {Array<string>} categories - Kaydedilecek kategori listesi
+ * @returns {Promise<void>}
+ */
 export const saveCategories = async (categories) => {
     try {
         await AsyncStorage.setItem(CATEGORIES_KEY, JSON.stringify(categories));
