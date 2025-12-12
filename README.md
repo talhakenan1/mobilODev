@@ -2,21 +2,118 @@
 
 Odaklanma ve mola oturumlarınızı takip etmenize, kategori bazlı kayıt tutmanıza ve grafiklerle ilerlemenizi görselleştirmenize yardımcı olan bir React Native (Expo) uygulaması.
 
+---
+
 ## İçindekiler
-- Proje Hakkında
-- Özellikler
-- Ekranlar
-- Mimari ve Dosya Yapısı
-- Kurulum ve Çalıştırma
-- Kullanım
-- Veri Saklama ve Model
-- Bağımlılıklar
-- Geliştirme Notları ve İzinler
-- Yol Haritası / Geliştirme Önerileri
+- [Proje Hakkında](#proje-hakkında)
+- [Ekran Görüntüleri](#ekran-görüntüleri)
+- [Özellikler](#özellikler)
+- [Ekranlar](#ekranlar)
+- [Mimari ve Dosya Yapısı](#mimari-ve-dosya-yapısı)
+- [Kurulum ve Çalıştırma](#kurulum-ve-çalıştırma)
+- [Kullanım](#kullanım)
+- [Veri Saklama ve Model](#veri-saklama-ve-model)
+- [Bağımlılıklar](#bağımlılıklar)
+- [Geliştirme Notları ve İzinler](#geliştirme-notları-ve-izinler)
+- [Yol Haritası / Geliştirme Önerileri](#yol-haritası--geliştirme-önerileri)
+
+---
 
 ## Proje Hakkında
 
 Uygulama, Pomodoro benzeri odak oturumlarını başlatma/duraklatma/bitirme akışı sağlar. Odak ve Mola modları arasında geçiş yapılabilir. Odak oturumları bittiğinde veya erken bitirildiğinde oturum özeti kaydedilir. Geçmiş oturumlar, günlük ve toplam süre istatistikleri, dikkat dağınıklığı sayıları ve kategori dağılımı grafiklerle sunulur.
+
+---
+
+## Ekran Görüntüleri
+
+Aşağıda uygulamanın farklı ekranlarından görüntüler yer almaktadır.
+
+### 🚀 Uygulama Açılış Ekranı (Splash Screen)
+Uygulama başlatıldığında kullanıcıyı karşılayan yükleme ekranı. Yeşil gradient arka plan üzerinde uygulama logosu ve adı görüntülenir.
+
+
+<p align="center">
+  <img src="assets/screenshots/1_splash_screen.png" alt="Splash Screen" width="300"/>
+</p>
+
+---
+
+### ⏱️ Ana Zamanlayıcı Ekranı
+Uygulama açıldıktan sonra karşınıza çıkan ana ekran. Çember şeklinde ilerleme göstergesi, süre seçimi butonları (15/25/30/45/60 dakika), Odak/Mola mod değiştirici ve kategori seçimi bu ekranda yer alır.
+
+
+<p align="center">
+  <img src="assets/screenshots/2_main_timer.png" alt="Ana Zamanlayıcı Ekranı" width="300"/>
+</p>
+
+---
+
+### 📊 Raporlar Sayfası (Veri Mevcut)
+Odaklanma oturumlarınızın kaydedildiği istatistik ekranı. Bugünkü ve toplam odaklanma süreleri, dikkat dağınıklığı sayısı, son 7 günün bar grafiği ve kategori bazlı pasta grafik görüntülenir.
+
+
+<p align="center">
+  <img src="assets/screenshots/3_reports_with_data.png" alt="Raporlar - Veri Mevcut" width="300"/>
+</p>
+
+---
+
+### 📭 Raporlar Sayfası (Veri Yok)
+Henüz hiçbir odaklanma oturumu kaydedilmediğinde görüntülenen ekran. Kullanıcıyı odaklanmaya teşvik eden bir mesaj gösterilir.
+
+
+<p align="center">
+  <img src="assets/screenshots/4_reports_empty.png" alt="Raporlar - Veri Yok" width="300"/>
+</p>
+
+---
+
+### ☕ Mola Zamanlayıcısı
+Mola moduna geçildiğinde görüntülenen ekran. Yeşil/turkuaz renk temasıyla odak modundan ayrışır. Mola süreleri için varsayılan 5 dakika olarak ayarlanmıştır.
+
+
+<p align="center">
+  <img src="assets/screenshots/5_break_timer.png" alt="Mola Zamanlayıcısı" width="300"/>
+</p>
+
+---
+
+### 🔔 Dikkat Dağınıklığı Takibi
+Odaklanma oturumu sırasında uygulamadan çıkıldığında dikkat dağınıklığı sayacı otomatik olarak artar. Bu özellik, kullanıcının ne kadar odaklı kaldığını takip etmesine yardımcı olur.
+
+<table>
+  <tr>
+    <th align="center">Uygulamadan Çıkmadan Önce (0)</th>
+    <th align="center">Uygulamadan Çıktıktan Sonra (1)</th>
+  </tr>
+  <tr>
+    <td align="center"><img src="assets/screenshots/6_distraction_0.png" alt="Dikkat Dağınıklığı: 0" width="280"/></td>
+    <td align="center"><img src="assets/screenshots/7_distraction_1.png" alt="Dikkat Dağınıklığı: 1" width="280"/></td>
+  </tr>
+</table>
+
+*Sol tarafta dikkat dağınıklığı sayacı 0 iken, sağ tarafta uygulamadan çıkıp geri dönüldükten sonra sayaç 1'e yükselmiştir.*
+
+---
+
+### 📋 Seans Özeti
+Odaklanma oturumu tamamlandığında veya manuel olarak bitirildiğinde açılan özet penceresi. Kategori bilgisi, toplam süre ve dikkat dağınıklığı sayısı burada görüntülenir.
+
+<p align="center">
+  <img src="assets/screenshots/8_session_summary.png" alt="Seans Özeti" width="300"/>
+</p>
+
+---
+
+### ➕ Kategori Ekleme
+Yeni kategori oluşturma penceresi. Kategori adı girilir ve 12 farklı renk seçeneğinden biri seçilerek kişiselleştirilmiş kategoriler oluşturulabilir.
+
+<p align="center">
+  <img src="assets/screenshots/9_add_category.png" alt="Kategori Ekleme" width="300"/>
+</p>
+
+---
 
 ## Özellikler
 - Odak ve Mola modları arasında geçiş.

@@ -85,18 +85,48 @@ export const clearSessions = async () => {
 
 /* ==================== KATEGORİ YÖNETİMİ ==================== */
 
-/** @constant {Array<string>} DEFAULT_CATEGORIES - Varsayılan kategori listesi */
-const DEFAULT_CATEGORIES = ["Ders Çalışma", "Kodlama", "Proje", "Kitap Okuma"];
+/** @constant {Array<Object>} DEFAULT_CATEGORIES - Varsayılan kategori listesi (isim ve renk ile) */
+const DEFAULT_CATEGORIES = [
+    { name: "Ders Çalışma", color: "#FF6384" },
+    { name: "Kodlama", color: "#36A2EB" },
+    { name: "Proje", color: "#FFCE56" },
+    { name: "Kitap Okuma", color: "#4BC0C0" }
+];
+
+/**
+ * Eski string formatındaki kategorileri yeni object formatına dönüştürür.
+ * @param {Array<string|Object>} categories - Eski veya yeni format kategori listesi
+ * @returns {Array<Object>} Yeni formatta kategori listesi
+ */
+const migrateCategories = (categories) => {
+    const defaultColors = ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF", "#FF9F40"];
+    return categories.map((cat, index) => {
+        if (typeof cat === 'string') {
+            return { name: cat, color: defaultColors[index % defaultColors.length] };
+        }
+        return cat;
+    });
+};
 
 /**
  * Kayıtlı kategorileri getirir, yoksa varsayılan kategorileri döndürür.
  * @async
- * @returns {Promise<Array<string>>} Kategori listesi
+ * @returns {Promise<Array<Object>>} Kategori listesi (her kategori { name, color } formatında)
  */
 export const getCategories = async () => {
     try {
         const jsonValue = await AsyncStorage.getItem(CATEGORIES_KEY);
-        return jsonValue != null ? JSON.parse(jsonValue) : DEFAULT_CATEGORIES;
+        if (jsonValue != null) {
+            const parsed = JSON.parse(jsonValue);
+            // Eski string formatını yeni formata migrate et
+            const migrated = migrateCategories(parsed);
+            // Eğer migration olduysa, kaydet
+            if (parsed.some(cat => typeof cat === 'string')) {
+                await saveCategories(migrated);
+            }
+            return migrated;
+        }
+        return DEFAULT_CATEGORIES;
     } catch (e) {
         console.error('Failed to fetch categories', e);
         return DEFAULT_CATEGORIES;
@@ -106,7 +136,7 @@ export const getCategories = async () => {
 /**
  * Kategori listesini AsyncStorage'a kaydeder.
  * @async
- * @param {Array<string>} categories - Kaydedilecek kategori listesi
+ * @param {Array<Object>} categories - Kaydedilecek kategori listesi (her kategori { name, color } formatında)
  * @returns {Promise<void>}
  */
 export const saveCategories = async (categories) => {

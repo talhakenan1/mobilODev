@@ -65,6 +65,14 @@ export default function HomeScreen() {
     const [sessionData, setSessionData] = useState(null);
     const [showCategoryModal, setShowCategoryModal] = useState(false);
     const [newCategory, setNewCategory] = useState("");
+    const [selectedColor, setSelectedColor] = useState("#FF6384");
+
+    // Renk paleti
+    const colorOptions = [
+        "#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", 
+        "#9966FF", "#FF9F40", "#E91E63", "#00BCD4",
+        "#8BC34A", "#FF5722", "#607D8B", "#795548"
+    ];
 
     useEffect(() => {
         loadCategories();
@@ -73,16 +81,19 @@ export default function HomeScreen() {
     const loadCategories = async () => {
         const cats = await getCategories();
         setCategories(cats);
-        if (cats.length > 0) setSelectedCategory(cats[0]);
+        if (cats.length > 0) setSelectedCategory(cats[0].name);
     };
 
     const addCategory = async () => {
-        if (newCategory.trim().length > 0 && !categories.includes(newCategory)) {
-            const newCats = [...categories, newCategory];
+        const categoryExists = categories.some(cat => cat.name === newCategory.trim());
+        if (newCategory.trim().length > 0 && !categoryExists) {
+            const newCategoryObj = { name: newCategory.trim(), color: selectedColor };
+            const newCats = [...categories, newCategoryObj];
             setCategories(newCats);
             await saveCategories(newCats);
-            setSelectedCategory(newCategory);
+            setSelectedCategory(newCategory.trim());
             setNewCategory("");
+            setSelectedColor("#FF6384");
             setShowCategoryModal(false);
         }
     };
@@ -95,10 +106,10 @@ export default function HomeScreen() {
         Alert.alert("Kategori Sil", `${selectedCategory} kategorisini silmek istediğinize emin misiniz?`, [
             { text: "İptal", style: "cancel" },
             { text: "Sil", style: "destructive", onPress: async () => {
-                const newCats = categories.filter(c => c !== selectedCategory);
+                const newCats = categories.filter(c => c.name !== selectedCategory);
                 setCategories(newCats);
                 await saveCategories(newCats);
-                setSelectedCategory(newCats[0]);
+                setSelectedCategory(newCats[0].name);
             }}
         ]);
     };
@@ -238,16 +249,16 @@ export default function HomeScreen() {
                                      <Ionicons name="trash" size={24} color="#666" />
                                  </TouchableOpacity>
                              </View>
-                             <View style={styles.pickerWrapper}>
-                                 <Picker
-                                     selectedValue={selectedCategory}
-                                     onValueChange={(itemValue) => setSelectedCategory(itemValue)}
-                                 >
-                                     {categories.map((cat) => (
-                                         <Picker.Item key={cat} label={cat} value={cat} />
-                                     ))}
-                                 </Picker>
-                             </View>
+                            <View style={styles.pickerWrapper}>
+                                <Picker
+                                    selectedValue={selectedCategory}
+                                    onValueChange={(itemValue) => setSelectedCategory(itemValue)}
+                                >
+                                    {categories.map((cat) => (
+                                        <Picker.Item key={cat.name} label={cat.name} value={cat.name} />
+                                    ))}
+                                </Picker>
+                            </View>
                          </View>
                      )}
                 </>
@@ -317,8 +328,26 @@ export default function HomeScreen() {
                              value={newCategory}
                              onChangeText={setNewCategory}
                          />
+                         <Text style={styles.colorLabel}>Renk Seçin:</Text>
+                         <View style={styles.colorGrid}>
+                             {colorOptions.map((color) => (
+                                 <TouchableOpacity
+                                     key={color}
+                                     style={[
+                                         styles.colorOption,
+                                         { backgroundColor: color },
+                                         selectedColor === color && styles.colorOptionSelected
+                                     ]}
+                                     onPress={() => setSelectedColor(color)}
+                                 >
+                                     {selectedColor === color && (
+                                         <Ionicons name="checkmark" size={20} color="white" />
+                                     )}
+                                 </TouchableOpacity>
+                             ))}
+                         </View>
                          <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%' }}>
-                             <TouchableOpacity style={[styles.button, { backgroundColor: '#ccc' }]} onPress={() => setShowCategoryModal(false)}>
+                             <TouchableOpacity style={[styles.button, { backgroundColor: '#ccc' }]} onPress={() => { setShowCategoryModal(false); setSelectedColor("#FF6384"); setNewCategory(""); }}>
                                  <Text style={styles.textStyle}>İptal</Text>
                              </TouchableOpacity>
                              <TouchableOpacity style={[styles.button, styles.buttonClose]} onPress={addCategory}>
@@ -556,5 +585,33 @@ const styles = StyleSheet.create({
         transform: [{ rotate: '-90deg' }] // This rotation was actually applied in the circle transform, but keeping container clean is good.
         // Actually, my Circle transform `rotate(-90 ...)` does the job. I don't need to rotate the container.
         // Let's remove this container style or keep it empty.
+    },
+    colorLabel: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: '#333',
+        marginBottom: 10,
+        alignSelf: 'flex-start',
+    },
+    colorGrid: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'center',
+        gap: 10,
+        marginBottom: 20,
+        width: '100%',
+    },
+    colorOption: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 2,
+        borderColor: 'transparent',
+    },
+    colorOptionSelected: {
+        borderColor: '#333',
+        borderWidth: 3,
     }
 });

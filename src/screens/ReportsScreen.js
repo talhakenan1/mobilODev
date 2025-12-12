@@ -2,16 +2,37 @@ import React, { useState, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, Dimensions, FlatList, TouchableOpacity, Alert } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { BarChart, PieChart } from 'react-native-chart-kit';
-import { getSessions, deleteSession } from '../utils/storage';
+import { getSessions, deleteSession, getCategories } from '../utils/storage';
 import { Ionicons } from '@expo/vector-icons';
 
 const screenWidth = Dimensions.get("window").width;
 
+/**
+ * Saniye cinsinden süreyi okunabilir formata çevirir
+ * @param {number} seconds - Saniye cinsinden süre
+ * @returns {string} Formatlanmış süre (örn: "5 dk 30 sn", "45 sn", "2 dk")
+ */
+const formatDuration = (seconds) => {
+    if (!seconds || seconds < 0) return "0 sn";
+    
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.floor(seconds % 60);
+    
+    if (minutes === 0) {
+        return `${remainingSeconds} sn`;
+    } else if (remainingSeconds === 0) {
+        return `${minutes} dk`;
+    } else {
+        return `${minutes} dk ${remainingSeconds} sn`;
+    }
+};
+
 export default function ReportsScreen() {
     const [sessions, setSessions] = useState([]);
+    const [categories, setCategories] = useState([]);
     const [stats, setStats] = useState({
-        todayTotal: 0,
-        allTimeTotal: 0,
+        todayTotalSeconds: 0,
+        allTimeTotalSeconds: 0,
         totalDistractions: 0,
     });
     const [chartData, setChartData] = useState({
@@ -26,11 +47,12 @@ export default function ReportsScreen() {
     );
 
     const loadData = async () => {
-        const data = await getSessions();
+        const [data, cats] = await Promise.all([getSessions(), getCategories()]);
+        setCategories(cats);
         // Sort by date descending
         const sortedData = data.sort((a, b) => new Date(b.date) - new Date(a.date));
         setSessions(sortedData);
-        calculateStats(sortedData);
+        calculateStats(sortedData, cats);
     };
 
     const handleDelete = (id) => {
@@ -40,12 +62,12 @@ export default function ReportsScreen() {
                 const newSessions = await deleteSession(id);
                 const sortedData = newSessions.sort((a, b) => new Date(b.date) - new Date(a.date));
                 setSessions(sortedData);
-                calculateStats(sortedData);
+                calculateStats(sortedData, categories);
             }}
         ]);
     };
 
-    const calculateStats = (data) => {
+    const calculateStats = (data, cats) => {
         const now = new Date();
         const today = now.toISOString().split('T')[0];
 
@@ -88,8 +110,8 @@ export default function ReportsScreen() {
         });
 
         setStats({
-            todayTotal: Math.round(todayTotal / 60), // minutes
-            allTimeTotal: Math.round(allTimeTotal / 60), // minutes
+            todayTotalSeconds: todayTotal,
+            allTimeTotalSeconds: allTimeTotal,
             totalDistractions,
         });
 
@@ -106,16 +128,20 @@ export default function ReportsScreen() {
             pie: Object.keys(categoryMap).map((cat, index) => ({
                 name: cat,
                 population: Math.round(categoryMap[cat] / 60),
-                color: getRandomColor(index),
+                color: getCategoryColor(cat, cats, index),
                 legendFontColor: "#7F7F7F",
                 legendFontSize: 12
             }))
         }));
     };
 
-    const getRandomColor = (index) => {
-        const colors = ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF", "#FF9F40"];
-        return colors[index % colors.length];
+    const getCategoryColor = (categoryName, cats, index) => {
+        const fallbackColors = ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF", "#FF9F40"];
+        const category = cats.find(c => c.name === categoryName);
+        if (category && category.color) {
+            return category.color;
+        }
+        return fallbackColors[index % fallbackColors.length];
     };
 
     const renderHeader = () => {
@@ -132,11 +158,11 @@ export default function ReportsScreen() {
             <View>
                 <View style={styles.statsContainer}>
                     <View style={styles.statBox}>
-                        <Text style={styles.statValue}>{stats.todayTotal} dk</Text>
+                        <Text style={styles.statValue}>{formatDuration(stats.todayTotalSeconds)}</Text>
                         <Text style={styles.statLabel}>Bugün</Text>
                     </View>
                     <View style={styles.statBox}>
-                        <Text style={styles.statValue}>{stats.allTimeTotal} dk</Text>
+                        <Text style={styles.statValue}>{formatDuration(stats.allTimeTotalSeconds)}</Text>
                         <Text style={styles.statLabel}>Toplam</Text>
                     </View>
                     <View style={styles.statBox}>
@@ -151,16 +177,30 @@ export default function ReportsScreen() {
                     width={screenWidth - 40}
                     height={220}
                     yAxisLabel=""
-                    yAxisSuffix="dk"
+                    yAxisSuffix=" dk"
+                    fromZero={true}
+                    showValuesOnTopOfBars={true}
+                    withInnerLines={true}
                     chartConfig={{
-                        backgroundColor: "#ffffff",
-                        backgroundGradientFrom: "#ffffff",
-                        backgroundGradientTo: "#ffffff",
+                        backgroundColor: "#1E88E5",
+                        backgroundGradientFrom: "#6366F1",
+                        backgroundGradientTo: "#8B5CF6",
                         decimalPlaces: 0,
-                        color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-                        labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+                        color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+                        labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+                        barPercentage: 0.6,
+                        fillShadowGradient: '#FBBF24',
+                        fillShadowGradientOpacity: 1,
+                        propsForBackgroundLines: {
+                            strokeDasharray: '',
+                            stroke: 'rgba(255, 255, 255, 0.2)',
+                        },
+                        propsForLabels: {
+                            fontSize: 11,
+                            fontWeight: '600',
+                        },
                     }}
-                    style={styles.chart}
+                    style={styles.barChart}
                 />
 
                 <Text style={styles.chartTitle}>Kategori Dağılımı</Text>
@@ -191,9 +231,9 @@ export default function ReportsScreen() {
                 </Text>
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                 <Text style={styles.sessionDuration}>{Math.round((item.elapsed || 0) / 60)} dk</Text>
+                 <Text style={styles.sessionDuration}>{formatDuration(item.elapsed || 0)}</Text>
                  <TouchableOpacity onPress={() => handleDelete(item.id)} style={styles.deleteButton}>
-                     <Ionicons name="trash-outline" size={20} color="#D32F2F" />
+                     <Ionicons name="trash-outline" size={20} color="#F44336" />
                  </TouchableOpacity>
             </View>
         </View>
@@ -249,7 +289,7 @@ const styles = StyleSheet.create({
     statValue: {
         fontSize: 24,
         fontWeight: 'bold',
-        color: '#E91E63',
+        color: 'tomato',
     },
     statLabel: {
         fontSize: 12,
@@ -265,6 +305,15 @@ const styles = StyleSheet.create({
     chart: {
         borderRadius: 16,
         marginVertical: 8,
+    },
+    barChart: {
+        borderRadius: 16,
+        marginVertical: 8,
+        shadowColor: '#6366F1',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 8,
     },
     sessionItem: {
         flexDirection: 'row',
@@ -287,7 +336,7 @@ const styles = StyleSheet.create({
     sessionDuration: {
         fontSize: 16,
         fontWeight: 'bold',
-        color: '#009688',
+        color: '#4CAF50',
         marginRight: 10,
     },
     deleteButton: {
