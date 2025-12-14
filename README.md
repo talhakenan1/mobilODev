@@ -258,10 +258,3 @@ Kaydetme davranışı:
 - Ses uyarısı: `expo-av` üzerinden ses çalma örneği yer alır; varsayılan olarak titreşim kullanılır.
 - Ekranı açık tutma: `expo-keep-awake` ile odak sırasında ekran kapanmaz.
 
-## Yol Haritası / Geliştirme Önerileri
-- Odak/mola süreleri için kullanıcıya özel ayar paneli.
-- Oturum tamamlandığında not ekleme ve hedefler.
-- Grafiklerde daha fazla filtre (hafta/ay/yıl).
-- Dışa aktarma (CSV/JSON) ve bulut senkronizasyonu.
-- Bildirim sesinin uygulamaya eklenmesi ve ayarlanabilirliği.
-
